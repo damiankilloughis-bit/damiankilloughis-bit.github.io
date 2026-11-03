@@ -1,8 +1,8 @@
-const CACHE = "drill-v2";
+const CACHE = "drill-v3";
 const ASSETS = [
   "./",
   "./index.html",
-  "./assets/index-D1NiiBWx.js",
+  "./assets/index-Ceaare5S.js",
   "./assets/index-DYLMr-12.css",
   "./assets/manifest-BF8Q1H_D.webmanifest",
   "./manifest.webmanifest",
@@ -16,7 +16,7 @@ const ASSETS = [
   "./voice/a-m3.mp3",
   "./voice/a-m4.mp3",
   "./voice/a-next.mp3",
-  "./voice/a-place.mp3",
+  "./voice/a-place-2.mp3",
   "./voice/b-done.mp3",
   "./voice/b-m1.mp3",
   "./voice/b-m2.mp3",
