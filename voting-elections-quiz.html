@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Voting & Elections Mastery Quiz</title>
+<style>
+  :root { --bg:#0f1419; --card:#1a2332; --accent:#4a9eff; --green:#2ecc71; --red:#e74c3c; --text:#e7ecf1; }
+  body { font-family: system-ui, -apple-system, sans-serif; background:var(--bg); color:var(--text); margin:0; padding:16px; line-height:1.5; }
+  .container { max-width:780px; margin:0 auto; }
+  h1 { color:var(--accent); font-size:1.6rem; margin-bottom:8px; }
+  .score { font-size:1.1rem; margin:12px 0; }
+  .question { background:var(--card); border-radius:12px; padding:16px; margin:16px 0; box-shadow:0 2px 8px rgba(0,0,0,.3); }
+  .q-text { font-weight:600; margin-bottom:12px; }
+  .options label { display:block; background:#243044; margin:6px 0; padding:10px 12px; border-radius:8px; cursor:pointer; transition:.15s; }
+  .options label:hover { background:#2d3e56; }
+  .options input { margin-right:8px; }
+  button { background:var(--accent); color:#fff; border:none; padding:10px 18px; border-radius:8px; font-size:1rem; cursor:pointer; margin:8px 4px 0 0; }
+  button:hover { opacity:.9; }
+  .feedback { margin-top:10px; font-weight:500; }
+  .correct { color:var(--green); }
+  .wrong { color:var(--red); }
+  .hidden { display:none; }
+  .summary { background:var(--card); padding:20px; border-radius:12px; margin-top:20px; }
+  small { color:#8a9bb0; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Voting & Elections Mastery Quiz</h1>
+  <p>Clickable practice covering constitutional foundations, rights, turnout, Electoral College, campaign finance, and key Supreme Court holdings. Answers are revealed only after you select and submit each question.</p>
+  <div class="score">Score: <span id="score">0</span> / <span id="total">0</span></div>
+  <div id="quiz"></div>
+  <button id="submitAll" onclick="gradeAll()">Submit All & Show Score</button>
+  <div id="summary" class="summary hidden"></div>
+</div>
+
+<script>
+const questions = [
+  {
+    q: "Which amendment prohibits denial of the vote on the basis of race, color, or previous condition of servitude?",
+    options: ["14th Amendment", "15th Amendment (1870)", "19th Amendment", "24th Amendment"],
+    answer: 1,
+    explain: "The 15th Amendment (1870) specifically bars denial based on race, color, or previous condition of servitude."
+  },
+  {
+    q: "The Elections Clause (Article I, Section 4) primarily concerns:",
+    options: ["Who is qualified to vote in congressional elections", "How congressional elections are conducted (times, places, manner)", "Voter ID requirements only", "Felony disenfranchisement"],
+    answer: 1,
+    explain: "Article I §4 regulates the times, places, and manner of congressional elections. Article I §2 and the 17th Amendment address who qualifies to vote."
+  },
+  {
+    q: "Harper v. Virginia Board of Elections (1966) held that:",
+    options: ["Poll taxes in federal elections are unconstitutional", "Poll taxes in state elections violate the Equal Protection Clause", "Literacy tests are always valid", "The 24th Amendment applies only to primaries"],
+    answer: 1,
+    explain: "Harper extended the ban on poll taxes to state elections under the Equal Protection Clause of the 14th Amendment."
+  },
+  {
+    q: "Shelby County v. Holder (2013) invalidated:",
+    options: ["The entire Voting Rights Act", "Section 2 of the Voting Rights Act", "The statutory coverage formula used for preclearance", "All language-minority protections"],
+    answer: 2,
+    explain: "The Court struck down the coverage formula that determined which jurisdictions were subject to preclearance. Section 2 (nationwide ban on discriminatory practices) remains in force."
+  },
+  {
+    q: "A candidate needs how many electoral votes to win the presidency under the ordinary Electoral College process?",
+    options: ["269", "270", "271", "538"],
+    answer: 1,
+    explain: "There are 538 total electoral votes; a majority of 270 is required."
+  },
+  {
+    q: "Why can a candidate win the Electoral College while losing the national popular vote?",
+    options: ["Because electors always vote independently of popular vote", "Because electoral votes are awarded jurisdiction by jurisdiction rather than by one national total", "Because of the 23rd Amendment", "Because of faithless electors only"],
+    answer: 1,
+    explain: "Votes are awarded state-by-state (mostly winner-take-all). A candidate can win enough states with narrow margins while losing larger margins elsewhere."
+  },
+  {
+    q: "If no candidate receives an electoral majority, the Twelfth Amendment provides that:",
+    options: ["The Senate chooses the president", "The House chooses the president, with each state delegation casting one vote", "A national runoff is held", "The Supreme Court decides"],
+    answer: 1,
+    explain: "The House selects the president from the top candidates; each state delegation has one vote and a majority of states is required. The Senate chooses the vice president."
+  },
+  {
+    q: "Chiafalo v. Washington (2020) upheld:",
+    options: ["Unlimited independent expenditures by corporations", "State power to enforce elector pledges", "The preclearance formula", "Poll taxes in state elections"],
+    answer: 1,
+    explain: "The Court upheld state laws that require electors to follow their pledges and allow enforcement of those requirements."
+  },
+  {
+    q: "Citizens United v. FEC (2010) held that:",
+    options: ["Corporations may make unlimited direct contributions to candidates", "The government generally may not prohibit corporations and unions from making independent expenditures", "Super PACs are unconstitutional", "PACs may not coordinate with candidates"],
+    answer: 1,
+    explain: "The decision protected independent expenditures by corporations and unions. It did not authorize unlimited direct contributions to federal candidates."
+  },
+  {
+    q: "Voting-Age Population (VAP) differs from Voting-Eligible Population (VEP) because VAP:",
+    options: ["Includes only registered voters", "Includes people age 18+ who may not be legally eligible to vote", "Excludes non-citizens", "Is always smaller than VEP"],
+    answer: 1,
+    explain: "VAP counts everyone 18 or older (including some non-citizens and ineligible felons). VEP counts only those legally eligible."
+  },
+  {
+    q: "A plurality means:",
+    options: ["More than half the votes", "More votes than any other candidate, but not necessarily a majority", "A tie", "The electoral vote total"],
+    answer: 1,
+    explain: "Plurality = most votes. Majority = more than half."
+  },
+  {
+    q: "A traditional PAC differs from a Super PAC in that a traditional PAC:",
+    options: ["May raise unlimited funds and coordinate with candidates", "May contribute directly to federal candidates subject to limits", "Is barred from any political spending", "Must register with the FEC only after the election"],
+    answer: 1,
+    explain: "Traditional PACs can make limited direct contributions. Super PACs can spend unlimited amounts on independent expenditures but cannot contribute directly or coordinate with candidates."
+  },
+  {
+    q: "Prospective voting focuses primarily on:",
+    options: ["Past performance of the incumbent", "What a candidate or party is expected to do in the future", "Party identification alone", "Strategic calculations about other candidates"],
+    answer: 1,
+    explain: "Prospective = future expectations. Retrospective = evaluations of past performance."
+  },
+  {
+    q: "Maine and Nebraska allocate electoral votes by:",
+    options: ["Pure statewide winner-take-all", "Congressional district results plus two statewide electors", "Proportional popular vote", "Random selection"],
+    answer: 1,
+    explain: "Two electors go to the statewide winner; remaining electors are allocated by congressional-district results."
+  },
+  {
+    q: "The National Voter Registration Act of 1993 (NVRA) is commonly associated with:",
+    options: ["Military absentee voting only", "Motor-voter registration opportunities at government offices", "Help America Vote Act standards", "Preclearance"],
+    answer: 1,
+    explain: "NVRA requires covered states to offer voter registration through motor-vehicle agencies and sets list-maintenance rules."
+  }
+];
+
+let answered = new Array(questions.length).fill(false);
+let correctCount = 0;
+document.getElementById("total").textContent = questions.length;
+
+function render() {
+  const container = document.getElementById("quiz");
+  questions.forEach((item, i) => {
+    const div = document.createElement("div");
+    div.className = "question";
+    div.innerHTML = `
+      <div class="q-text">${i+1}. ${item.q}</div>
+      <div class="options" id="opts-${i}">
+        ${item.options.map((opt, j) => `
+          <label><input type="radio" name="q${i}" value="${j}" onchange="check(${i}, ${j})"> ${opt}</label>
+        `).join("")}
+      </div>
+      <div class="feedback" id="fb-${i}"></div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function check(qi, selected) {
+  if (answered[qi]) return;
+  answered[qi] = true;
+  const fb = document.getElementById(`fb-${qi}`);
+  const correct = questions[qi].answer === selected;
+  if (correct) {
+    correctCount++;
+    fb.innerHTML = `<span class="correct">Correct.</span> ${questions[qi].explain}`;
+  } else {
+    fb.innerHTML = `<span class="wrong">Incorrect.</span> Correct answer: ${questions[qi].options[questions[qi].answer]}. ${questions[qi].explain}`;
+  }
+  document.getElementById("score").textContent = correctCount;
+  document.querySelectorAll(`input[name="q${qi}"]`).forEach(r => r.disabled = true);
+}
+
+function gradeAll() {
+  questions.forEach((_, i) => {
+    if (!answered[i]) {
+      const fb = document.getElementById(`fb-${i}`);
+      fb.innerHTML = `<span class="wrong">Not answered.</span> Correct: ${questions[i].options[questions[i].answer]}. ${questions[i].explain}`;
+      answered[i] = true;
+    }
+  });
+  document.getElementById("summary").classList.remove("hidden");
+  document.getElementById("summary").innerHTML = `
+    <h2>Final Score: ${correctCount} / ${questions.length}</h2>
+    <p>Review the explanations above. Focus next on any distinctions you missed (Elections Clause vs qualifications, VAP vs VEP, PAC vs Super PAC, prospective vs retrospective, Electoral College mechanics, and the precise holdings of Harper, Shelby County, Chiafalo, and Citizens United).</p>
+  `;
+  document.getElementById("submitAll").disabled = true;
+}
+
+render();
+</script>
+</body>
+</html>
